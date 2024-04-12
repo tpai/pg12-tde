@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  postgres:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PG_ENCRYPT_KEY=dce48283c5ea92664bb4ad1ca31bde26
+    volumes:
+      - ./postgres-data:/postgres
+      - ./postgresql.conf:/postgresql.conf
+      - ./initdb.sql:/initdb.sql
+    ports:
+      - 5432:5432
