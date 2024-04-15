@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
 if [[ -n "$PG_ENCRYPTION_KEY" ]]; then
-  echo "echo \"$PG_ENCRYPTION_KEY\"" > $HOME/key.sh
-  chmod +x $HOME/key.sh
+  echo "echo \"$PG_ENCRYPTION_KEY\"" > $PGCONFIG/key.sh
+  chmod +x $PGCONFIG/key.sh
 fi
 
-if [ -f $HOME/key.sh ]; then
+if [ -f $PGCONFIG/key.sh ]; then
   # initialize database
-  initdb -K $HOME/key.sh
+  initdb -K $PGCONFIG/key.sh
 
   # empty logfile
-  > /postgres/logfile
+  > $PGDATA/logfile
 
   # start postgres server
-  pg_ctl -K $HOME/key.sh -l /postgres/logfile start
+  pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile start
 
   # wait until server is ready
   until pg_isready -U postgres
@@ -26,8 +26,8 @@ if [ -f $HOME/key.sh ]; then
   if [ ! -f $PGDATA/PG_INIT ]; then
 
     # run initial SQL script
-    if [ -f /initdb.sql ]; then
-      psql -U postgres < /initdb.sql
+    if [ -f $PGCONFIG/initdb.sql ]; then
+      psql -U postgres < $PGCONFIG/initdb.sql
     fi
 
     # enable pg_stat_statements extension
@@ -40,17 +40,17 @@ if [ -f $HOME/key.sh ]; then
 
     # replace with customized postgresql.conf
     rm $PGDATA/postgresql.conf
-    cp /postgresql.conf $PGDATA/postgresql.conf
+    cp $PGCONFIG/postgresql.conf $PGDATA/postgresql.conf
 
     # restart postgres server
-    pg_ctl -K $HOME/key.sh -l $PGDATA/logfile restart
+    pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile restart
 
     # create flag
     touch $PGDATA/PG_INIT
   fi
 
   # watch log
-  tail -f /postgres/logfile
+  tail -f $PGDATA/logfile
 else
   echo "Error: /key.sh does not exist."
 fi

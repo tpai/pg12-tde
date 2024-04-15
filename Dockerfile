@@ -11,29 +11,37 @@ RUN tar xvfz postgresql-12.3_TDE_1.0.tar.gz
 RUN apt install -y build-essential libldap2-dev libperl-dev python-dev-is-python3 libreadline-dev libssl-dev bison flex
 
 # build postgresql from source
-RUN cd postgresql-12.3_TDE_1.0 && ./configure --prefix=/usr/local/pg12tde --with-openssl --with-perl --with-python --with-ldap
-RUN cd postgresql-12.3_TDE_1.0 && make install
-RUN cd postgresql-12.3_TDE_1.0/contrib/ && make install
+RUN cd postgresql-12.3_TDE_1.0 && \
+    ./configure --prefix=/usr/local/pg12tde --with-openssl --with-perl --with-python --with-ldap && \
+    make install && \
+    cd contrib/ && \
+    make install
 
 # create user `postgres`
 RUN adduser postgres
 RUN usermod -aG sudo postgres
 
-# create base folder
-RUN mkdir -p /postgres
-RUN chmod 775 /postgres
-RUN chown -R postgres:postgres /postgres
+# default env variables
+ENV PG_ADMIN_PASS=postgres
+ENV PATH=$PATH:/usr/local/pg12tde/bin
+ENV PGCONFIG=/etc/postgresql
+ENV PGDATA=/var/lib/postgresql
+ENV PGHOST=/tmp
+
+# create PGDATA folder
+RUN mkdir -p $PGDATA
+RUN chmod 775 $PGDATA
+RUN chown -R postgres:postgres $PGDATA
+
+# create PGCONFIG folder
+RUN mkdir -p $PGCONFIG
+RUN chmod 775 $PGCONFIG
+RUN chown -R postgres:postgres $PGCONFIG
 
 USER postgres
 WORKDIR /
 
-# default env variables
-ENV PG_ADMIN_PASS=postgres
-ENV PATH=$PATH:/usr/local/pg12tde/bin
-ENV PGDATA=/postgres
-ENV PGHOST=/tmp
-
 # initialize database
-COPY init_pg.sh .
+COPY initpg.sh .
 
-CMD ["./init_pg.sh"]
+CMD ["./initpg.sh"]
