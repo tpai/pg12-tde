@@ -5,7 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - PG_ENCRYPT_KEY=dce48283c5ea92664bb4ad1ca31bde26
+      - PG_POSTGRES_PASSWORD=pgadmpass
+      - PG_ENCRYPTION_KEY=dce48283c5ea92664bb4ad1ca31bde26
     volumes:
       - ./postgres-data:/postgres
       - ./postgresql.conf:/postgresql.conf

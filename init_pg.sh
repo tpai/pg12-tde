@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [[ -n "$PG_ENCRYPT_KEY" ]]; then
-  echo "echo \"$PG_ENCRYPT_KEY\"" > $HOME/key.sh
+if [[ -n "$PG_ENCRYPTION_KEY" ]]; then
+  echo "echo \"$PG_ENCRYPTION_KEY\"" > $HOME/key.sh
   chmod +x $HOME/key.sh
 fi
 
@@ -22,7 +22,7 @@ if [ -f $HOME/key.sh ]; then
     sleep 1
   done
 
-  # check if flag does not exist
+  # check if PG_INIT flag is existed
   if [ ! -f $PGDATA/PG_INIT ]; then
 
     # run initial SQL script
@@ -30,13 +30,15 @@ if [ -f $HOME/key.sh ]; then
       psql -U postgres < /initdb.sql
     fi
 
+    # enable pg_stat_statements extension
+    psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;"
     # reset admin password
-    psql -U postgres -c "ALTER USER \"postgres\" WITH PASSWORD '$PG_ADMIN_PASS';"
+    psql -U postgres -c "ALTER USER \"postgres\" WITH PASSWORD '$PG_POSTGRES_PASSWORD';"
 
     # edit pg_hba
     echo "host all all all md5" >> $PGDATA/pg_hba.conf
 
-    # replace postgresql.conf
+    # replace with customized postgresql.conf
     rm $PGDATA/postgresql.conf
     cp /postgresql.conf $PGDATA/postgresql.conf
 
