@@ -23,7 +23,7 @@ if [ -f $PGCONFIG/key.sh ]; then
   done
 
   # check if PG_INIT flag is existed
-  if [ ! -f $PGDATA/PG_INIT ]; then
+  if [ "$1" == "primary" ] && [ ! -f $PGDATA/PG_INIT ]; then
 
     # run initial SQL script
     if [ -f $PGCONFIG/initdb.sql ]; then

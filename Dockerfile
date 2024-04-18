@@ -47,4 +47,4 @@ WORKDIR /
 # initialize database
 COPY initpg.sh .
 
-CMD ["./initpg.sh"]
+CMD ["./initpg.sh", "primary"]

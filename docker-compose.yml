@@ -1,9 +1,8 @@
 version: '3.8'
 services:
   postgres:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    build: .
+    command: ./initpg.sh primary
     environment:
       - PG_POSTGRES_PASSWORD=pgadmpass
       - PG_ENCRYPTION_KEY=dce48283c5ea92664bb4ad1ca31bde26
