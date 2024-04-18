@@ -21,6 +21,9 @@ RUN cd postgresql-12.3_TDE_1.0 && \
 RUN adduser postgres
 RUN usermod -aG sudo postgres
 
+# install backup tool for postgres user
+RUN su - postgres && apt install -y postgresql-client pgbackrest
+
 # default env variables
 ENV PG_ADMIN_PASS=postgres
 ENV PATH=$PATH:/usr/local/pg12tde/bin

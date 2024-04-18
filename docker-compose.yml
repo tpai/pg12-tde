@@ -8,6 +8,8 @@ services:
       - PG_POSTGRES_PASSWORD=pgadmpass
       - PG_ENCRYPTION_KEY=dce48283c5ea92664bb4ad1ca31bde26
     volumes:
+      - ./pgbackrest-data:/var/lib/pgbackrest
+      - ./pgbackrest.conf:/etc/pgbackrest.conf
       - ./postgres-data:/var/lib/postgresql
       - ./postgresql.conf:/etc/postgresql/postgresql.conf
       - ./initdb.sql:/etc/postgresql/initdb.sql

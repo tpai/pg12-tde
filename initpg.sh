@@ -45,9 +45,14 @@ if [ -f $PGCONFIG/key.sh ]; then
     # restart postgres server
     pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile restart
 
+    # create backup stanza
+    pgbackrest --stanza=main --log-level-console=info stanza-create
+
     # create flag
     touch $PGDATA/PG_INIT
   fi
+  # validate backup configuration
+  pgbackrest --stanza=main --log-level-console=info check
 
   # watch log
   tail -f $PGDATA/logfile
