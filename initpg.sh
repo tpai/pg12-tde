@@ -1,29 +1,21 @@
 #!/usr/bin/env bash
 
+set -e
+
 if [[ -n "$PG_ENCRYPTION_KEY" ]]; then
   echo "echo \"$PG_ENCRYPTION_KEY\"" > $PGCONFIG/key.sh
   chmod +x $PGCONFIG/key.sh
 fi
 
 if [ -f $PGCONFIG/key.sh ]; then
-  # initialize database
-  initdb -K $PGCONFIG/key.sh
 
-  # empty logfile
-  > $PGDATA/logfile
-
-  # start postgres server
-  pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile start
-
-  # wait until server is ready
-  until pg_isready -U postgres
-  do
-    echo "Waiting for PostgreSQL to start..."
-    sleep 1
-  done
-
-  # check if PG_INIT flag is existed
+  ## primary server initialization
   if [ "$1" == "primary" ] && [ ! -f $PGDATA/PG_INIT ]; then
+    # initialize database
+    initdb -K $PGCONFIG/key.sh
+
+    # start postgres server
+    pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile start
 
     # run initial SQL script
     if [ -f $PGCONFIG/initdb.sql ]; then
@@ -42,17 +34,30 @@ if [ -f $PGCONFIG/key.sh ]; then
     rm $PGDATA/postgresql.conf
     cp $PGCONFIG/postgresql.conf $PGDATA/postgresql.conf
 
-    # restart postgres server
-    pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile restart
-
     # create backup stanza
     pgbackrest --stanza=main --log-level-console=info stanza-create
+
+    # stop postgres server
+    pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile stop
 
     # create flag
     touch $PGDATA/PG_INIT
   fi
-  # validate backup configuration
-  pgbackrest --stanza=main --log-level-console=info check
+  # empty logfile
+  > $PGDATA/logfile
+
+  # start postgres server
+  pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile start
+
+  # wait until server is ready
+  until pg_isready -U postgres
+  do
+    echo "Waiting for PostgreSQL to start..."
+    sleep 1
+  done
+
+  # list backup records
+  pgbackrest --stanza=main --log-level-console=info info
 
   # watch log
   tail -f $PGDATA/logfile

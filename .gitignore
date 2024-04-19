@@ -1,2 +1,3 @@
-postgres-data/
+minio-pgbackup/
 pgbackrest-data/
+postgres-data/

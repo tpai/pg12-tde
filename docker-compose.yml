@@ -13,4 +13,19 @@ services:
       - ./postgresql.conf:/etc/postgresql/postgresql.conf
       - ./initdb.sql:/etc/postgresql/initdb.sql
     ports:
-      - 5432:5432
+      - "5432:5432"
+  minio:
+    build:
+      context: .
+      dockerfile: minio.Dockerfile
+    entrypoint: "/bin/bash -c 'mkdir -p /backup/pgbackrest && /usr/bin/minio server /backup --console-address :9001'"
+    restart: always
+    user: root
+    environment:
+      - MINIO_ROOT_USER=miniouser
+      - MINIO_ROOT_PASSWORD=miniopass
+    volumes:
+      - ./minio-pgbackup:/backup
+    ports:
+      - "9000:9000"
+      - "9001:9001"
