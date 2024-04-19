@@ -1,4 +1,11 @@
-# PostgreSQL 12 with TDE
+# PG12-TDE Stack
+
+## Features
+
+- Transparent Data Encryption
+- MinIO storage
+- Backup and restore
+- PITR
 
 ## Usage
 
