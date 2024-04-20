@@ -7,20 +7,23 @@
 - Backup and restore
 - PITR
 
-## Usage
+## Service Endpoints
+
+- PostgreSQL: `psql://postgres:pgadmpass@localhost:5432`
+- MinIO: `http://localhost:9001` / `miniouser:miniopass`
+
+## Demo
 
 ### Backup & Restore
 
 ```bash
 # full backup
-docker-compose exec postgres bash
-$ pgbackrest --stanza=main --log-level-console=info --type=full backup
-
-# incremental backup
-$ pgbackrest --stanza=main --log-level-console=info --type=incr backup
+docker-compose exec postgres bash -c "
+  pgbackrest --stanza=main --log-level-console=info --type=full backup"
 
 # list backup records
-$ pgbackrest --stanza=main --log-level-console=info info
+docker-compose exec postgres bash -c "
+  pgbackrest --stanza=main --log-level-console=info info"
 stanza: main
     status: ok
     cipher: none
@@ -33,6 +36,25 @@ stanza: main
             wal start/stop: 000000010000000000000002 / 000000010000000000000002
             database size: 29.9MB, database backup size: 29.9MB
             repo1: backup set size: 29.9MB, backup size: 29.9MB
+
+# insert values
+docker-compose exec postgres bash -c "
+  psql -c \"CREATE TABLE random_names (id SERIAL PRIMARY KEY,name VARCHAR(50));
+  INSERT INTO random_names (name) VALUES ('John Smith'), ('Emma Johnson'), ('Michael Brown');\""
+
+# get values
+docker-compose exec postgres bash -c "
+  psql -c \"SELECT * FROM random_names;\""
+ id |     name
+----+---------------
+  1 | John Smith
+  2 | Emma Johnson
+  3 | Michael Brown
+(3 rows)
+
+# incremental backup
+docker-compose exec postgres bash -c "
+  pgbackrest --stanza=main --log-level-console=info --type=incr backup"
 
 # stop postgres server
 docker-compose stop postgres
@@ -47,6 +69,13 @@ docker-compose run --rm -it postgres bash -c "
 
 # start server
 docker-compose up -d
+
+# verify result
+docker-compose exec postgres bash -c "
+  psql -c \"SELECT * FROM random_names;\""
+ERROR:  relation "random_names" does not exist
+LINE 1: SELECT * FROM random_names;
+                      ^
 ```
 
 ### Development
