@@ -2,8 +2,8 @@
 
 set -e
 
-if [[ -n "$PG_ENCRYPTION_KEY" ]]; then
-  echo "echo \"$PG_ENCRYPTION_KEY\"" > $PGCONFIG/key.sh
+if [[ -n "$POSTGRES_ENCRYPTION_KEY" ]]; then
+  echo "echo \"$POSTGRES_ENCRYPTION_KEY\"" > $PGCONFIG/key.sh
   chmod +x $PGCONFIG/key.sh
 fi
 
@@ -18,14 +18,14 @@ if [ -f $PGCONFIG/key.sh ]; then
     pg_ctl -K $PGCONFIG/key.sh -l $PGDATA/logfile start
 
     # run initial SQL script
-    if [ -f $PGCONFIG/initdb.sql ]; then
-      psql -U postgres < $PGCONFIG/initdb.sql
+    if [ -f $INITDB/initdb.sql ]; then
+      psql -U postgres < $INITDB/initdb.sql
     fi
 
     # enable pg_stat_statements extension
     psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;"
     # reset admin password
-    psql -U postgres -c "ALTER USER \"postgres\" WITH PASSWORD '$PG_POSTGRES_PASSWORD';"
+    psql -U postgres -c "ALTER USER \"postgres\" WITH PASSWORD '$POSTGRES_PASSWORD';"
 
     # edit pg_hba
     echo "host all all all md5" >> $PGDATA/pg_hba.conf

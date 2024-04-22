@@ -25,11 +25,17 @@ RUN usermod -aG sudo postgres
 RUN su - postgres && apt install -y postgresql-client pgbackrest
 
 # default env variables
-ENV PG_ADMIN_PASS=postgres
+ENV INITDB=/docker-entrypoint-initdb.d
 ENV PATH=$PATH:/usr/local/pgtde/bin
+ENV PG_ADMIN_PASS=postgres
 ENV PGCONFIG=/etc/postgresql
-ENV PGDATA=/var/lib/postgresql
+ENV PGDATA=/var/lib/postgresql/data
 ENV PGHOST=/tmp
+
+# create INITDB folder
+RUN mkdir -p $INITDB
+RUN chmod 775 $INITDB
+RUN chown -R postgres:postgres $INITDB
 
 # create PGDATA folder
 RUN mkdir -p $PGDATA
