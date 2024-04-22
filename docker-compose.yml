@@ -2,13 +2,12 @@ version: '3.8'
 services:
   postgres:
     build: .
-    command: ./initpg.sh primary
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pgadmpass
-      - POSTGRES_ENCRYPTION_KEY=dce48283c5ea92664bb4ad1ca31bde26
     volumes:
-      - ./pgbackrest.conf:/etc/pgbackrest.conf
+      - ./pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf
       - ./postgres-data:/var/lib/postgresql/data
       - ./postgresql.conf:/etc/postgresql/postgresql.conf
       - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
