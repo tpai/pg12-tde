@@ -4,7 +4,6 @@
 
 - Transparent Data Encryption
 - MinIO storage
-- Backup and restore
 - PITR
 
 ## Service Endpoints
@@ -78,8 +77,16 @@ LINE 1: SELECT * FROM random_names;
                       ^
 ```
 
+## Miscellaneous
+
 ### Development
 
 ```bash
 docker-compose up -d --build --force-recreate
+```
+
+### Generate Encryption Key
+
+```bash
+openssl rand -hex 16
 ```
